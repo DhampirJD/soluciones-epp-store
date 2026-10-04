@@ -1,0 +1,9 @@
+{
+  "name": "Soluciones EPP Store - EPP Control Pro Cloud",
+  "short_name": "EPP Cloud",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#07111b",
+  "theme_color": "#07111b",
+  "description": "Administración centralizada de Soluciones EPP Store."
+}

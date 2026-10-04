@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#07111b">
+<title>Soluciones EPP Store · EPP Control Pro Cloud</title>
+<link rel="manifest" href="manifest.webmanifest">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --bg:#07111b;--side:#08131e;--panel:#0e1b29;--panel2:#122335;--line:#24384c;
+  --text:#eef5fb;--muted:#9fb2c4;--orange:#ff7500;--orange2:#ff9a2f;
+  --green:#20b26b;--red:#ff5d5d;--blue:#2f7ee6;--shadow:0 20px 50px rgba(0,0,0,.28);
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:Inter,Segoe UI,Arial,sans-serif;background:radial-gradient(circle at 18% 0,#15283a 0,#08131e 48%,#050b11 100%);color:var(--text)}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+a{color:inherit}
+.hidden{display:none!important}
+.shell{min-height:100vh;display:grid;grid-template-columns:260px minmax(0,1fr)}
+.sidebar{position:sticky;top:0;height:100vh;overflow:auto;padding:24px 18px 28px;border-right:1px solid #1e3042;background:linear-gradient(180deg,#08131e,#071019)}
+.logo-crop{width:140px;height:140px;margin:8px auto 16px;border-radius:30px;background-image:url('assets/sidebar_reference.png');background-repeat:no-repeat;background-size:315px 229px;background-position:-24px -34px;box-shadow:0 0 46px rgba(255,117,0,.26)}
+.brand-title{text-align:center;font-size:24px;font-weight:900;line-height:1.04;margin:0;color:#fff}
+.brand-sub{text-align:center;color:var(--muted);font-size:12px;line-height:1.45;margin:10px 0 22px}
+.nav{display:grid;gap:8px}
+.nav button{width:100%;display:flex;align-items:center;gap:11px;padding:12px 13px;border-radius:12px;border:1px solid transparent;background:transparent;color:#cbd7e1;text-align:left;font-weight:800}
+.nav button:hover{background:#0d1b28;border-color:#1d3448}
+.nav button.active{background:linear-gradient(90deg,rgba(255,117,0,.18),rgba(255,117,0,.04));border-color:rgba(255,117,0,.34);color:#fff}
+.nav .ico{width:24px;text-align:center;color:#ff8c29}
+.side-foot{margin-top:22px;padding-top:18px;border-top:1px solid #1c3142;color:#91a5b6;font-size:11px;line-height:1.5}
+.main{min-width:0}
+.topbar{position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;align-items:center;gap:18px;min-height:74px;padding:15px 28px;border-bottom:1px solid #1f3345;background:rgba(7,17,27,.92);backdrop-filter:blur(9px)}
+.topbar strong{font-size:18px}
+.userbox{display:flex;align-items:center;gap:12px;min-width:0}
+.usercopy{min-width:0;text-align:right}
+.usercopy b,.usercopy small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:270px}
+.usercopy small{color:var(--muted);font-size:11px;margin-top:3px}
+.status{display:inline-flex;align-items:center;gap:7px;border:1px solid #2b4155;background:#0d1a26;border-radius:999px;padding:7px 10px;font-size:11px;color:#d7e1e8}
+.dot{width:9px;height:9px;border-radius:50%;background:#607487}.dot.ok{background:var(--green);box-shadow:0 0 12px rgba(32,178,107,.6)}.dot.bad{background:var(--red)}
+.content{padding:28px;max-width:1500px;margin:0 auto}
+.page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:20px}
+.page-head h1{font-size:30px;line-height:1.05;margin:0}
+.page-head p{color:var(--muted);margin:7px 0 0}
+.actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn{border:1px solid #2a4155;background:#142435;color:#fff;border-radius:12px;padding:10px 14px;font-weight:800}
+.btn:hover{filter:brightness(1.08)}
+.btn.primary{background:linear-gradient(135deg,var(--orange),var(--orange2));border-color:#ff8b22;color:#151515}
+.btn.green{background:#103923;border-color:#216b43;color:#d9ffea}
+.btn.danger{background:#38181b;border-color:#6d2b31;color:#ffd7d9}
+.btn.small{padding:7px 10px;font-size:11px}
+.grid-kpi{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}
+.kpi{background:linear-gradient(180deg,#102031,#0c1824);border:1px solid #243b50;border-radius:18px;padding:18px;min-width:0}
+.kpi small{color:var(--muted);display:block;margin-bottom:8px}.kpi strong{font-size:27px}.kpi span{color:#8ea4b7;font-size:11px;margin-left:5px}
+.card{background:linear-gradient(180deg,#102031,#0c1824);border:1px solid #23394c;border-radius:20px;box-shadow:var(--shadow);padding:18px;margin-bottom:18px;min-width:0}
+.card h3{margin:0;font-size:17px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.search,.input,.select,.textarea{border:1px solid #294157;background:#07121d;color:#fff;padding:11px 12px;border-radius:11px;outline:none}
+.search{min-width:260px;flex:1}
+.input:focus,.select:focus,.textarea:focus,.search:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(255,117,0,.12)}
+.table-wrap{overflow:auto;border:1px solid #20374a;border-radius:14px}
+table{width:100%;border-collapse:collapse;min-width:760px}
+th{position:sticky;top:0;background:#102132;color:#9fb2c4;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.07em;padding:11px 12px;border-bottom:1px solid #284157;white-space:nowrap}
+td{padding:11px 12px;border-bottom:1px solid #1c3142;color:#dde7ee;font-size:12px;vertical-align:top}
+tr:last-child td{border-bottom:0}
+.money{text-align:right;font-variant-numeric:tabular-nums}
+.badge{display:inline-flex;align-items:center;border-radius:999px;padding:5px 8px;font-size:10px;font-weight:900;border:1px solid #2d4559;background:#132231}
+.badge.orange{border-color:#6d441d;background:#352313;color:#ffad5b}
+.badge.green{border-color:#245d3c;background:#123021;color:#97f2bd}
+.badge.red{border-color:#6d3034;background:#35191c;color:#ffadb0}
+.muted{color:var(--muted)}
+.empty{padding:28px;text-align:center;color:#8fa4b6}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-grid label{display:grid;gap:6px;font-size:11px;color:#a9bbc9;text-transform:uppercase;letter-spacing:.04em}
+.form-grid .full{grid-column:1/-1}
+.modal{display:none;position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.72);padding:26px 16px;overflow:auto}
+.modal.open{display:block}
+.modalbox{max-width:840px;margin:0 auto;background:#0c1722;border:1px solid #284056;border-radius:22px;box-shadow:0 30px 80px rgba(0,0,0,.5);overflow:hidden}
+.modalhead{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;border-bottom:1px solid #22374a;background:#101e2b}
+.modalbody{padding:18px}
+.x{border:0;background:transparent;color:#fff;font-size:25px}
+.notice{border:1px solid #2d465b;background:#0c1b28;border-radius:13px;padding:11px 12px;color:#c9d6e0;font-size:12px;margin-bottom:12px}
+.notice.error{border-color:#6d3034;background:#32171a;color:#ffd0d1}
+.notice.ok{border-color:#245d3c;background:#102d1f;color:#baf4d1}
+.login-wrap{min-height:100vh;display:grid;grid-template-columns:minmax(300px,430px) 1fr;background:radial-gradient(circle at 20% 0,#162b3e 0,#07111b 56%)}
+.login-brand{padding:50px 40px;background:linear-gradient(180deg,#08131e,#071019);border-right:1px solid #1f3345}
+.login-brand .logo-crop{margin:0 0 22px}
+.login-brand h1{font-size:38px;line-height:.98;margin:0}.login-brand p{color:#9fb2c4;line-height:1.55}
+.login-main{display:grid;place-items:center;padding:32px}
+.login-card{width:min(470px,100%);background:linear-gradient(180deg,#102031,#0c1824);border:1px solid #294157;border-radius:24px;padding:26px;box-shadow:var(--shadow)}
+.login-card h2{margin:0;font-size:26px}.login-card p{color:var(--muted);line-height:1.5}
+.login-card label{display:grid;gap:7px;margin:16px 0;color:#b9c9d7;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+.login-card input{width:100%}
+.toast{position:fixed;right:22px;bottom:22px;z-index:110;max-width:390px;border:1px solid #2b4559;background:#0b1925;border-radius:13px;padding:12px 14px;box-shadow:var(--shadow);display:none}
+.toast.show{display:block}
+.toast.error{border-color:#6d3034}.toast.ok{border-color:#245d3c}
+@media(max-width:980px){
+  .shell{grid-template-columns:86px minmax(0,1fr)}
+  .sidebar{padding:18px 10px}.logo-crop{width:62px;height:62px;border-radius:16px;background-size:139px 101px;background-position:-11px -15px}
+  .brand-title,.brand-sub,.nav .label,.side-foot{display:none}.nav button{justify-content:center;padding:12px 8px}.nav .ico{width:auto}
+  .content{padding:20px}.grid-kpi{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:650px){
+  .shell{display:block}.sidebar{position:fixed;left:0;right:0;bottom:0;top:auto;height:auto;z-index:60;padding:7px 8px;border-right:0;border-top:1px solid #1e3042}
+  .sidebar .logo-crop,.brand-title,.brand-sub,.side-foot{display:none}.nav{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}.nav::-webkit-scrollbar{display:none}.nav button{padding:9px 6px;min-width:54px;flex:0 0 54px}.nav .label{display:none}
+  .content{padding:16px 14px 92px}.topbar{padding:12px 14px}.grid-kpi{grid-template-columns:1fr 1fr}.two{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.form-grid .full{grid-column:1}
+  .usercopy{display:none}.page-head{align-items:center}.page-head h1{font-size:25px}.page-head p{display:none}
+}
+</style>
+</head>
+<body>
+
+<section id="loginScreen" class="login-wrap">
+  <div class="login-brand">
+    <div class="logo-crop"></div>
+    <h1>SOLUCIONES<br>EPP STORE</h1>
+    <p>EPP Control Pro Cloud<br>Administración centralizada y sincronizada.</p>
+    <div class="notice">Una sola base PostgreSQL para todos los dispositivos autorizados.</div>
+  </div>
+  <div class="login-main">
+    <div class="login-card">
+      <h2>Acceso administrativo</h2>
+      <p>Ingresa con tu cuenta autorizada. Los datos se consultan directamente en la base compartida de Supabase.</p>
+      <label>Correo<input id="loginEmail" class="input" type="email" value="solucioneseppstore@gmail.com" autocomplete="username"></label>
+      <label>Contraseña<input id="loginPassword" class="input" type="password" autocomplete="current-password" placeholder="Contraseña de Authentication"></label>
+      <button id="loginBtn" class="btn primary" style="width:100%">Ingresar</button>
+      <div id="loginError" class="notice error hidden" style="margin-top:14px"></div>
+    </div>
+  </div>
+</section>
+
+<section id="appScreen" class="shell hidden">
+  <aside class="sidebar">
+    <div class="logo-crop"></div>
+    <div class="brand-title">SOLUCIONES<br>EPP STORE</div>
+    <div class="brand-sub">EPP Control Pro Cloud<br>Base compartida</div>
+    <nav class="nav">
+      <button data-page="dashboard" class="active"><span class="ico">⌂</span><span class="label">Dashboard</span></button>
+      <button data-page="products"><span class="ico">▦</span><span class="label">Productos</span></button>
+      <button data-page="clients"><span class="ico">♙</span><span class="label">Clientes</span></button>
+      <button data-page="inventory"><span class="ico">↕</span><span class="label">Inventario</span></button>
+      <button data-page="requests"><span class="ico">✉</span><span class="label">Solicitudes</span></button>
+      <button data-page="quotes"><span class="ico">▤</span><span class="label">Cotizaciones</span></button>
+      <button data-page="accounts"><span class="ico">$</span><span class="label">Cuentas de cobro</span></button>
+      <button data-page="access"><span class="ico">◉</span><span class="label">Accesos</span></button>
+      <button data-page="settings"><span class="ico">⚙</span><span class="label">Configuración</span></button>
+    </nav>
+    <div class="side-foot">
+      <b id="sideRole">—</b><br>
+      Base central: PostgreSQL<br>
+      Estado: <span id="sideRealtime">conectando…</span>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div><strong id="topTitle">Dashboard</strong></div>
+      <div class="userbox">
+        <span class="status"><span id="rtDot" class="dot"></span><span id="rtText">Realtime</span></span>
+        <div class="usercopy"><b id="userName">—</b><small id="userEmail">—</small></div>
+        <button id="logoutBtn" class="btn small">Cerrar sesión</button>
+      </div>
+    </header>
+    <main id="content" class="content"></main>
+  </div>
+</section>
+
+<div id="modal" class="modal"><div class="modalbox"><div class="modalhead"><strong id="modalTitle">Formulario</strong><button id="modalClose" class="x">×</button></div><div id="modalBody" class="modalbody"></div></div></div>
+<div id="toast" class="toast"></div>
+
+<script>
+const PROJECT_URL='https://xioqgscjyetsuzrfrrwf.supabase.co';
+const PUBLISHABLE_KEY='sb_publishable_eC3rCOr6eg6NhHWRtYOekw_NayDvsB8';
+const ORG_SLUG='soluciones-epp-store';
+const sb=window.supabase.createClient(PROJECT_URL,PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+
+const state={user:null,profile:null,membership:null,org:null,company:null,orgId:null,page:'dashboard',channel:null,products:[],clients:[],accounts:[]};
+const PAGE_ACCESS={
+  admin:['dashboard','products','clients','inventory','requests','quotes','accounts','access','settings'],
+  commercial:['dashboard','products','clients','requests','quotes','accounts'],
+  inventory:['dashboard','products','inventory'],
+  viewer:['dashboard','products','inventory']
+};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+const money=v=>new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP',maximumFractionDigits:0}).format(Number(v||0));
+const num=v=>new Intl.NumberFormat('es-CO',{maximumFractionDigits:3}).format(Number(v||0));
+const date=v=>v?new Date(v+'T00:00:00').toLocaleDateString('es-CO'):'—';
+const dt=v=>v?new Date(v).toLocaleString('es-CO'):'—';
+
+function toast(msg,type='ok'){const t=$('toast');t.textContent=msg;t.className='toast show '+type;clearTimeout(window._toastTimer);window._toastTimer=setTimeout(()=>t.className='toast',3600);}
+function openModal(title,html){$('modalTitle').textContent=title;$('modalBody').innerHTML=html;$('modal').classList.add('open');}
+function closeModal(){$('modal').classList.remove('open');}
+$('modalClose').onclick=closeModal;$('modal').onclick=e=>{if(e.target===$('modal'))closeModal();};
+function role(){return state.membership?.role||'viewer'}
+function hasRole(...roles){return roles.includes(role())}
+function canUsePage(page){return (PAGE_ACCESS[role()]||PAGE_ACCESS.viewer).includes(page)}
+function applyRoleUi(){
+ document.querySelectorAll('.nav button').forEach(button=>button.classList.toggle('hidden',!canUsePage(button.dataset.page)));
+ if(!canUsePage(state.page))state.page='dashboard';
+}
+
+async function getSessionContext(){
+ const {data:{user},error:ue}=await sb.auth.getUser(); if(ue||!user) throw ue||new Error('Sesión no disponible');
+ const {data:profile,error:pe}=await sb.from('profiles').select('*').eq('id',user.id).single(); if(pe) throw pe;
+ const {data:membership,error:me}=await sb.from('organization_members').select('*').eq('user_id',user.id).eq('is_active',true).single(); if(me) throw me;
+ const {data:org,error:oe}=await sb.from('organizations').select('*').eq('id',membership.organization_id).single(); if(oe) throw oe;
+ const {data:company,error:ce}=await sb.from('company_settings').select('*').eq('organization_id',org.id).single(); if(ce) throw ce;
+ Object.assign(state,{user,profile,membership,org,company,orgId:org.id});
+ $('userName').textContent=profile.full_name||user.email;$('userEmail').textContent=user.email||'';$('sideRole').textContent=`${membership.role} · ${org.name}`;
+ applyRoleUi();
+}
+
+async function count(table){const {count,error}=await sb.from(table).select('*',{count:'exact',head:true}).eq('organization_id',state.orgId);if(error)throw error;return count||0}
+async function sumStock(){
+ const {data,error}=await sb.from('stock_by_product').select('stock_on_hand').eq('organization_id',state.orgId);if(error)throw error;
+ return (data||[]).reduce((a,x)=>a+Number(x.stock_on_hand||0),0);
+}
+async function sumReceivable(){
+ const {data,error}=await sb.from('collection_accounts').select('balance').eq('organization_id',state.orgId).in('status',['issued','partial']);if(error)throw error;
+ return (data||[]).reduce((a,x)=>a+Number(x.balance||0),0);
+}
+
+function pageHead(title,subtitle,actions=''){return `<div class="page-head"><div><h1>${esc(title)}</h1><p>${esc(subtitle)}</p></div><div class="actions">${actions}</div></div>`}
+function statusBadge(v){const ok=['paid','confirmed','accepted','quoted','closed'];const warn=['new','review','draft','sent','issued','partial','pending'];const bad=['cancelled','rejected','expired'];const cls=ok.includes(v)?'green':bad.includes(v)?'red':'orange';return `<span class="badge ${cls}">${esc(v||'—')}</span>`}
+
+async function renderDashboard(){
+ $('topTitle').textContent='Dashboard';
+ const commercial=hasRole('admin','commercial'),inventory=hasRole('admin','inventory','viewer');
+ const metrics=[['Productos','dProducts']];
+ if(commercial)metrics.push(['Clientes','dClients']);
+ if(inventory)metrics.push(['Unidades en inventario','dStock']);
+ if(commercial)metrics.push(['Cartera pendiente','dReceivable']);
+ const cards=metrics.map(([label,id])=>`<div class="kpi"><small>${label}</small><strong id="${id}">…</strong></div>`).join('');
+ const commercialPanels=commercial?'<div class="two"><div class="card"><h3>Solicitudes recientes</h3><div id="dRequests" style="margin-top:12px"></div></div><div class="card"><h3>Cuentas de cobro recientes</h3><div id="dAccounts" style="margin-top:12px"></div></div></div>':'<div class="card"><div class="notice">Tu perfil está orientado a la consulta de catálogo e inventario. Las solicitudes y la cartera son gestionadas por el área comercial.</div></div>';
+ const c=$('content');c.innerHTML=pageHead('Dashboard','Resumen en tiempo real de la operación cloud','<button class="btn" onclick="renderCurrent()">Actualizar</button>')+`<div class="grid-kpi">${cards}</div>${commercialPanels}`;
+ try{
+   const jobs=[count('products')];if(commercial)jobs.push(count('clients'));if(inventory)jobs.push(sumStock());if(commercial)jobs.push(sumReceivable());
+   const results=await Promise.all(jobs);let index=0;$('dProducts').textContent=results[index++];if(commercial)$('dClients').textContent=results[index++];if(inventory)$('dStock').textContent=num(results[index++]);if(commercial)$('dReceivable').textContent=money(results[index++]);
+   if(commercial){
+    const [{data:req},{data:acc}]=await Promise.all([
+      sb.from('quote_requests').select('id,request_number,customer_name,company_name,status,created_at').eq('organization_id',state.orgId).order('created_at',{ascending:false}).limit(6),
+      sb.from('collection_accounts').select('id,account_number,status,total,balance,issue_date').eq('organization_id',state.orgId).order('created_at',{ascending:false}).limit(6)
+    ]);
+    $('dRequests').innerHTML=(req||[]).length?`<div class="table-wrap"><table><thead><tr><th>Número</th><th>Cliente</th><th>Estado</th></tr></thead><tbody>${req.map(x=>`<tr><td>${esc(x.request_number)}</td><td>${esc(x.company_name||x.customer_name)}</td><td>${statusBadge(x.status)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Aún no hay solicitudes.</div>';
+    $('dAccounts').innerHTML=(acc||[]).length?`<div class="table-wrap"><table><thead><tr><th>Número</th><th>Estado</th><th>Saldo</th></tr></thead><tbody>${acc.map(x=>`<tr><td>${esc(x.account_number)}</td><td>${statusBadge(x.status)}</td><td class="money">${money(x.balance)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Aún no hay cuentas de cobro.</div>';
+   }
+ }catch(e){toast(e.message,'error')}
+}
+
+async function renderProducts(){
+ $('topTitle').textContent='Productos';
+ const actions=hasRole('admin','inventory')?'<button class="btn primary" onclick="openProductForm()">+ Producto</button>':'';
+ $('content').innerHTML=pageHead('Productos','Catálogo maestro compartido entre dispositivos',actions)+`<div class="card"><div class="toolbar"><input id="productSearch" class="search" placeholder="Buscar SKU, producto o marca…" oninput="loadProducts()"></div><div id="productsBox"></div></div>`;
+ await loadProducts();
+}
+async function loadProducts(){
+ const q=($('productSearch')?.value||'').trim();
+ let query=sb.from('products').select('*').eq('organization_id',state.orgId).eq('is_active',true).order('name');
+ if(q) query=query.or(`sku.ilike.%${q}%,name.ilike.%${q}%,brand.ilike.%${q}%`);
+ const {data,error}=await query;if(error){toast(error.message,'error');return}
+ state.products=data||[];
+ const edit=hasRole('admin','inventory');
+ $('productsBox').innerHTML=(data||[]).length?`<div class="table-wrap"><table><thead><tr><th>SKU</th><th>Producto</th><th>Marca</th><th>Referencia</th><th>Precio</th><th>Público</th>${edit?'<th></th>':''}</tr></thead><tbody>${data.map(p=>`<tr><td><b>${esc(p.sku)}</b></td><td>${esc(p.name)}<div class="muted">${esc(p.short_description||'')}</div></td><td>${esc(p.brand||'—')}</td><td>${esc(p.model_reference||'—')}</td><td class="money">${money(p.sale_price)}</td><td>${p.is_public?'<span class="badge green">Sí</span>':'<span class="badge">No</span>'}</td>${edit?`<td><button class="btn small" onclick="editProductById('${p.id}')">Editar</button></td>`:''}</tr>`).join('')}</tbody></table></div>`:'<div class="empty">No hay productos todavía.</div>';
+}
+function editProductById(id){const p=state.products.find(x=>x.id===id);if(p)openProductForm(p)}
+function openProductForm(p=null){
+ const x=p||{};
+ openModal(p?'Editar producto':'Nuevo producto',`<div class="form-grid">
+ <label>SKU<input id="pSku" class="input" value="${esc(x.sku||'')}"></label>
+ <label>Unidad<input id="pUnit" class="input" value="${esc(x.unit||'UND')}"></label>
+ <label class="full">Producto<input id="pName" class="input" value="${esc(x.name||'')}"></label>
+ <label>Marca<input id="pBrand" class="input" value="${esc(x.brand||'')}"></label>
+ <label>Referencia / modelo<input id="pRef" class="input" value="${esc(x.model_reference||'')}"></label>
+ <label>Costo compra<input id="pCost" class="input" type="number" min="0" value="${Number(x.purchase_cost||0)}"></label>
+ <label>Precio venta<input id="pPrice" class="input" type="number" min="0" value="${Number(x.sale_price||0)}"></label>
+ <label>Disponibilidad pública<input id="pAvail" class="input" value="${esc(x.public_availability||'Bajo pedido')}"></label>
+ <label>Visible en catálogo<select id="pPublic" class="select"><option value="true" ${x.is_public!==false?'selected':''}>Sí</option><option value="false" ${x.is_public===false?'selected':''}>No</option></select></label>
+ <label>Destacado<select id="pFeatured" class="select"><option value="false" ${!x.is_featured?'selected':''}>No</option><option value="true" ${x.is_featured?'selected':''}>Sí</option></select></label>
+ <label class="full">Descripción corta<textarea id="pShort" class="textarea" rows="3">${esc(x.short_description||'')}</textarea></label>
+ <label class="full">Descripción técnica<textarea id="pTech" class="textarea" rows="4">${esc(x.technical_description||'')}</textarea></label>
+ <div class="full actions"><button class="btn primary" onclick='saveProduct(${JSON.stringify(x.id||null)},${Number(x.version||0)})'>Guardar</button></div>
+ </div>`);
+}
+async function saveProduct(id,version){
+ const obj={organization_id:state.orgId,sku:$('pSku').value.trim(),name:$('pName').value.trim(),brand:$('pBrand').value.trim()||null,model_reference:$('pRef').value.trim()||null,unit:$('pUnit').value.trim()||'UND',purchase_cost:Number($('pCost').value||0),sale_price:Number($('pPrice').value||0),public_availability:$('pAvail').value.trim()||'Bajo pedido',is_public:$('pPublic').value==='true',is_featured:$('pFeatured').value==='true',short_description:$('pShort').value.trim()||null,technical_description:$('pTech').value.trim()||null};
+ if(!obj.sku||!obj.name){toast('SKU y producto son obligatorios','error');return}
+ let error;
+ if(id){
+   const res=await sb.from('products').update(obj).eq('id',id).eq('version',version).select('id').maybeSingle();error=res.error;
+   if(!error&&!res.data){toast('El producto cambió en otro dispositivo. Actualiza y vuelve a intentarlo.','error');return}
+ }else{({error}=await sb.from('products').insert(obj))}
+ if(error){toast(error.message,'error');return}closeModal();toast('Producto guardado');await loadProducts();
+}
+
+async function renderClients(){
+ $('topTitle').textContent='Clientes';
+ const actions=hasRole('admin','commercial')?'<button class="btn primary" onclick="openClientForm()">+ Cliente</button>':'';
+ $('content').innerHTML=pageHead('Clientes','Base comercial compartida',actions)+`<div class="card"><div class="toolbar"><input id="clientSearch" class="search" placeholder="Buscar cliente, documento o ciudad…" oninput="loadClients()"></div><div id="clientsBox"></div></div>`;
+ await loadClients();
+}
+async function loadClients(){
+ const q=($('clientSearch')?.value||'').trim();
+ let query=sb.from('clients').select('*').eq('organization_id',state.orgId).eq('is_active',true).order('name');
+ if(q)query=query.or(`name.ilike.%${q}%,document_number.ilike.%${q}%,city.ilike.%${q}%`);
+ const {data,error}=await query;if(error){toast(error.message,'error');return}
+ state.clients=data||[];
+ const edit=hasRole('admin','commercial');
+ $('clientsBox').innerHTML=(data||[]).length?`<div class="table-wrap"><table><thead><tr><th>Cliente</th><th>Documento</th><th>Contacto</th><th>Ciudad</th><th>Pago</th>${edit?'<th></th>':''}</tr></thead><tbody>${data.map(c=>`<tr><td><b>${esc(c.name)}</b><div class="muted">${esc(c.email||'')}</div></td><td>${esc(c.document_type||'')} ${esc(c.document_number||'')}</td><td>${esc(c.contact_name||'—')}<div class="muted">${esc(c.phone||'')}</div></td><td>${esc(c.city||'—')}</td><td>${esc(c.payment_terms||'—')}</td>${edit?`<td><button class="btn small" onclick="editClientById('${c.id}')">Editar</button></td>`:''}</tr>`).join('')}</tbody></table></div>`:'<div class="empty">Aún no hay clientes.</div>';
+}
+function editClientById(id){const c=state.clients.find(x=>x.id===id);if(c)openClientForm(c)}
+function openClientForm(c=null){
+ const x=c||{};
+ openModal(c?'Editar cliente':'Nuevo cliente',`<div class="form-grid">
+ <label class="full">Cliente / empresa<input id="cName" class="input" value="${esc(x.name||'')}"></label>
+ <label>Tipo documento<input id="cDocType" class="input" value="${esc(x.document_type||'NIT')}"></label>
+ <label>Número documento<input id="cDoc" class="input" value="${esc(x.document_number||'')}"></label>
+ <label>Contacto<input id="cContact" class="input" value="${esc(x.contact_name||'')}"></label>
+ <label>Teléfono<input id="cPhone" class="input" value="${esc(x.phone||'')}"></label>
+ <label>Correo<input id="cEmail" class="input" type="email" value="${esc(x.email||'')}"></label>
+ <label>Ciudad<input id="cCity" class="input" value="${esc(x.city||'')}"></label>
+ <label>Condiciones de pago<input id="cTerms" class="input" value="${esc(x.payment_terms||'')}"></label>
+ <label>Días de crédito<input id="cDays" class="input" type="number" min="0" value="${Number(x.credit_days||0)}"></label>
+ <label class="full">Dirección<input id="cAddress" class="input" value="${esc(x.address||'')}"></label>
+ <div class="full actions"><button class="btn primary" onclick='saveClient(${JSON.stringify(x.id||null)},${Number(x.version||0)})'>Guardar</button></div>
+ </div>`);
+}
+async function saveClient(id,version){
+ const obj={organization_id:state.orgId,name:$('cName').value.trim(),document_type:$('cDocType').value.trim()||null,document_number:$('cDoc').value.trim()||null,contact_name:$('cContact').value.trim()||null,phone:$('cPhone').value.trim()||null,email:$('cEmail').value.trim()||null,city:$('cCity').value.trim()||null,payment_terms:$('cTerms').value.trim()||null,credit_days:Number($('cDays').value||0),address:$('cAddress').value.trim()||null};
+ if(!obj.name){toast('El nombre del cliente es obligatorio','error');return}
+ let res;if(id)res=await sb.from('clients').update(obj).eq('id',id).eq('version',version).select('id').maybeSingle();else res=await sb.from('clients').insert(obj).select('id').single();
+ if(res.error){toast(res.error.message,'error');return}if(id&&!res.data){toast('El cliente cambió en otro dispositivo. Actualiza e intenta nuevamente.','error');return}
+ closeModal();toast('Cliente guardado');await loadClients();
+}
+
+async function renderInventory(){
+ $('topTitle').textContent='Inventario';
+ const actions=hasRole('admin','inventory')?'<button class="btn primary" onclick="openMovementForm()">+ Movimiento</button>':'';
+ $('content').innerHTML=pageHead('Inventario','Existencias calculadas desde movimientos transaccionales',actions)+`<div class="two"><div class="card"><h3>Existencias</h3><div id="stockBox" style="margin-top:12px"></div></div><div class="card"><h3>Últimos movimientos</h3><div id="movesBox" style="margin-top:12px"></div></div></div>`;
+ await loadInventory();
+}
+async function loadInventory(){
+ const [{data:stock,error:se},{data:moves,error:me}]=await Promise.all([
+  sb.from('stock_by_product').select('*').eq('organization_id',state.orgId).order('name'),
+  sb.from('inventory_movements').select('id,movement_type,quantity_delta,reason,created_at,products(sku,name)').eq('organization_id',state.orgId).order('created_at',{ascending:false}).limit(50)
+ ]);
+ if(se||me){toast((se||me).message,'error');return}
+ $('stockBox').innerHTML=(stock||[]).length?`<div class="table-wrap"><table><thead><tr><th>SKU</th><th>Producto</th><th>Existencia</th></tr></thead><tbody>${stock.map(x=>`<tr><td>${esc(x.sku)}</td><td>${esc(x.name)}</td><td><b>${num(x.stock_on_hand)}</b></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">No hay productos con inventario.</div>';
+ $('movesBox').innerHTML=(moves||[]).length?`<div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Producto</th><th>Tipo</th><th>Cantidad</th></tr></thead><tbody>${moves.map(x=>`<tr><td>${dt(x.created_at)}</td><td>${esc(x.products?.sku||'')} · ${esc(x.products?.name||'')}</td><td>${esc(x.movement_type)}</td><td><b>${num(x.quantity_delta)}</b><div class="muted">${esc(x.reason||'')}</div></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Sin movimientos todavía.</div>';
+}
+async function openMovementForm(){
+ const {data,error}=await sb.from('products').select('id,sku,name').eq('organization_id',state.orgId).eq('is_active',true).order('name');if(error){toast(error.message,'error');return}
+ openModal('Nuevo movimiento',`<div class="notice">La cantidad debe ser positiva para entradas y negativa para salidas.</div><div class="form-grid">
+ <label class="full">Producto<select id="mProduct" class="select">${(data||[]).map(p=>`<option value="${p.id}">${esc(p.sku)} · ${esc(p.name)}</option>`).join('')}</select></label>
+ <label>Tipo<select id="mType" class="select"><option value="opening">Saldo inicial</option><option value="purchase">Entrada compra</option><option value="return_in">Devolución entrada</option><option value="sale">Salida venta/manual</option><option value="return_out">Devolución salida</option><option value="adjustment">Ajuste</option></select></label>
+ <label>Cantidad (+/-)<input id="mQty" class="input" type="number" step="0.001" value="1"></label>
+ <label class="full">Motivo<input id="mReason" class="input" placeholder="Compra, ajuste inicial, corrección…"></label>
+ <div class="full actions"><button class="btn primary" onclick="saveMovement()">Registrar movimiento</button></div>
+ </div>`);
+}
+async function saveMovement(){
+ const qty=Number($('mQty').value||0);if(!qty){toast('La cantidad no puede ser cero','error');return}
+ const {error}=await sb.rpc('post_inventory_movement',{p_organization_id:state.orgId,p_product_id:$('mProduct').value,p_movement_type:$('mType').value,p_quantity_delta:qty,p_reason:$('mReason').value.trim()||null,p_reference_type:null,p_reference_id:null,p_metadata:{}});
+ if(error){toast(error.message,'error');return}closeModal();toast('Movimiento registrado');await loadInventory();
+}
+
+async function renderRequests(){
+ $('topTitle').textContent='Solicitudes';
+ $('content').innerHTML=pageHead('Solicitudes','Pedidos recibidos desde el carrito público')+`<div class="card"><div id="requestsBox"></div></div>`;
+ await loadRequests();
+}
+async function loadRequests(){
+ const {data,error}=await sb.from('quote_requests').select('*').eq('organization_id',state.orgId).order('created_at',{ascending:false});if(error){toast(error.message,'error');return}
+ $('requestsBox').innerHTML=(data||[]).length?`<div class="table-wrap"><table><thead><tr><th>Solicitud</th><th>Cliente</th><th>Contacto</th><th>Fecha</th><th>Estado</th><th></th></tr></thead><tbody>${data.map(r=>`<tr><td><b>${esc(r.request_number)}</b></td><td>${esc(r.company_name||r.customer_name)}<div class="muted">${esc(r.customer_name)}</div></td><td>${esc(r.phone)}<div class="muted">${esc(r.email||'')}</div></td><td>${dt(r.created_at)}</td><td>${statusBadge(r.status)}</td><td>${r.converted_quote_id?'<span class="badge green">Convertida</span>':`<button class="btn small primary" onclick="convertRequest('${r.id}')">Convertir a cotización</button>`}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Todavía no han llegado solicitudes desde el catálogo.</div>';
+}
+async function convertRequest(id){
+ if(!confirm('¿Convertir esta solicitud en cotización?'))return;
+ const {data,error}=await sb.rpc('convert_request_to_quote',{p_request_id:id});if(error){toast(error.message,'error');return}
+ toast('Solicitud convertida a cotización');await loadRequests();
+}
+
+async function renderQuotes(){
+ $('topTitle').textContent='Cotizaciones';
+ $('content').innerHTML=pageHead('Cotizaciones','Cotizaciones centralizadas en PostgreSQL')+`<div class="card"><div id="quotesBox"></div></div>`;
+ await loadQuotes();
+}
+async function loadQuotes(){
+ const {data,error}=await sb.from('quotes').select('*,clients(name)').eq('organization_id',state.orgId).order('created_at',{ascending:false});if(error){toast(error.message,'error');return}
+ $('quotesBox').innerHTML=(data||[]).length?`<div class="table-wrap"><table><thead><tr><th>Cotización</th><th>Cliente</th><th>Fecha</th><th>Validez</th><th>Estado</th><th>Total</th><th></th></tr></thead><tbody>${data.map(q=>`<tr><td><b>${esc(q.quote_number)}</b></td><td>${esc(q.clients?.name||'—')}</td><td>${date(q.quote_date)}</td><td>${date(q.valid_until)}</td><td>${statusBadge(q.status)}</td><td class="money">${money(q.total)}</td><td>${q.converted_sale_id?'<span class="badge green">Cuenta creada</span>':`<button class="btn small primary" onclick="convertQuote('${q.id}')">Generar venta / cuenta</button>`}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Aún no hay cotizaciones.</div>';
+}
+async function convertQuote(id){
+ if(!confirm('Esta operación crea la venta, la cuenta de cobro y descuenta inventario. ¿Continuar?'))return;
+ const {data,error}=await sb.rpc('convert_quote_to_sale',{p_quote_id:id});if(error){toast(error.message,'error');return}
+ toast('Venta y cuenta de cobro creadas');await loadQuotes();
+}
+
+async function renderAccounts(){
+ $('topTitle').textContent='Cuentas de cobro';
+ $('content').innerHTML=pageHead('Cuentas de cobro','Cartera y pagos sincronizados')+`<div class="card"><div id="accountsBox"></div></div>`;
+ await loadAccounts();
+}
+
+async function renderAccess(){
+ $('topTitle').textContent='Accesos';
+ $('content').innerHTML=pageHead('Accesos','Perfiles con permisos validados por la base de datos')+`<div class="card"><div class="notice">Para agregar una persona, crea primero su cuenta en Supabase Authentication. Al aparecer aquí, asígnale uno de los perfiles operativos. No compartas la cuenta administradora.</div><div id="accessBox"></div></div>`;
+ const {data,error}=await sb.from('organization_members').select('user_id,role,is_active,profiles(full_name)').eq('organization_id',state.orgId).order('created_at');
+ if(error){toast(error.message,'error');return}
+ const members=data||[];
+ const rows=members.map(member=>{
+  const options=['admin','commercial','inventory','viewer'].map(profile=>`<option value="${profile}" ${member.role===profile?'selected':''}>${profile}</option>`).join('');
+  const stateBadge=member.is_active?'<span class="badge green">Activo</span>':'<span class="badge red">Inactivo</span>';
+  return `<tr><td><b>${esc(member.profiles?.full_name||member.user_id)}</b></td><td><select class="select" id="role-${member.user_id}">${options}</select></td><td>${stateBadge}</td><td><button class="btn small" onclick="saveAccess('${member.user_id}')">Guardar</button></td></tr>`;
+ }).join('');
+ $('accessBox').innerHTML=members.length?`<div class="table-wrap"><table><thead><tr><th>Persona</th><th>Perfil</th><th>Estado</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`:'<div class="empty">No hay miembros asignados aún.</div>';
+}
+async function saveAccess(userId){
+ const roleValue=$(`role-${userId}`).value;
+ const {error}=await sb.from('organization_members').update({role:roleValue}).eq('organization_id',state.orgId).eq('user_id',userId);
+ if(error){toast(error.message,'error');return}toast('Perfil actualizado');await renderAccess();
+}
+async function loadAccounts(){
+ const {data,error}=await sb.from('collection_accounts').select('*,clients(name)').eq('organization_id',state.orgId).order('created_at',{ascending:false});if(error){toast(error.message,'error');return}
+ state.accounts=data||[];
+ $('accountsBox').innerHTML=(data||[]).length?`<div class="table-wrap"><table><thead><tr><th>Cuenta</th><th>Cliente</th><th>Emisión</th><th>Estado</th><th>Total</th><th>Pagado</th><th>Saldo</th><th></th></tr></thead><tbody>${data.map(a=>`<tr><td><b>${esc(a.account_number)}</b></td><td>${esc(a.clients?.name||'—')}</td><td>${date(a.issue_date)}</td><td>${statusBadge(a.status)}</td><td class="money">${money(a.total)}</td><td class="money">${money(a.paid)}</td><td class="money"><b>${money(a.balance)}</b></td><td>${Number(a.balance)>0?`<button class="btn small green" onclick="openPaymentById('${a.id}')">Registrar pago</button>`:'<span class="badge green">Pagada</span>'}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Aún no hay cuentas de cobro.</div>';
+}
+function openPaymentById(id){const a=state.accounts.find(x=>x.id===id);if(a)openPayment(a)}
+function openPayment(a){
+ openModal(`Pago · ${a.account_number}`,`<div class="notice">Saldo actual: <b>${money(a.balance)}</b></div><div class="form-grid">
+ <label>Monto<input id="payAmount" class="input" type="number" min="1" max="${Number(a.balance)}" value="${Number(a.balance)}"></label>
+ <label>Método<select id="payMethod" class="select"><option value="bank_transfer">Transferencia bancaria</option><option value="nequi">Nequi</option><option value="daviplata">Daviplata</option><option value="cash">Efectivo</option><option value="other">Otro</option></select></label>
+ <label class="full">Referencia<input id="payRef" class="input"></label>
+ <label class="full">Observaciones<textarea id="payNotes" class="textarea" rows="3"></textarea></label>
+ <div class="full actions"><button class="btn primary" onclick="savePayment('${a.id}')">Registrar pago</button></div>
+ </div>`);
+}
+async function savePayment(id){
+ const amount=Number($('payAmount').value||0);if(amount<=0){toast('Monto inválido','error');return}
+ const {error}=await sb.rpc('register_payment',{p_account_id:id,p_amount:amount,p_method:$('payMethod').value,p_reference:$('payRef').value.trim()||null,p_notes:$('payNotes').value.trim()||null});if(error){toast(error.message,'error');return}
+ closeModal();toast('Pago registrado');await loadAccounts();
+}
+
+async function renderSettings(){
+ $('topTitle').textContent='Configuración';
+ const c=state.company;
+ $('content').innerHTML=pageHead('Configuración','Datos comerciales de la organización')+`<div class="card"><div class="form-grid">
+ <label>Nombre comercial<input id="sTrade" class="input" value="${esc(c.trade_name||'')}"></label>
+ <label>NIT<input id="sDoc" class="input" value="${esc(c.document_number||'')}"></label>
+ <label>Teléfono<input id="sPhone" class="input" value="${esc(c.phone||'')}"></label>
+ <label>WhatsApp<input id="sWa" class="input" value="${esc(c.whatsapp||'')}"></label>
+ <label>Correo<input id="sEmail" class="input" type="email" value="${esc(c.email||'')}"></label>
+ <label>Ciudad<input id="sCity" class="input" value="${esc(c.city||'')}"></label>
+ <label class="full">Dirección<input id="sAddress" class="input" value="${esc(c.address||'')}"></label>
+ <label>Prefijo cotización<input id="sQuotePrefix" class="input" value="${esc(c.quote_prefix||'COT-')}"></label>
+ <label>Prefijo cuenta de cobro<input id="sAccountPrefix" class="input" value="${esc(c.account_prefix||'CC-')}"></label>
+ <div class="full actions"><button class="btn primary" onclick="saveSettings()">Guardar cambios</button><a class="btn" href="catalogo.html" target="_blank">Abrir catálogo público</a></div>
+ </div></div>`;
+}
+async function saveSettings(){
+ const obj={trade_name:$('sTrade').value.trim(),document_number:$('sDoc').value.trim(),phone:$('sPhone').value.trim(),whatsapp:$('sWa').value.trim(),email:$('sEmail').value.trim(),city:$('sCity').value.trim(),address:$('sAddress').value.trim(),quote_prefix:$('sQuotePrefix').value.trim(),account_prefix:$('sAccountPrefix').value.trim()};
+ const {data,error}=await sb.from('company_settings').update(obj).eq('organization_id',state.orgId).eq('version',state.company.version).select('*').maybeSingle();if(error){toast(error.message,'error');return}if(!data){toast('La configuración fue modificada desde otro dispositivo. Actualiza.','error');return}
+ state.company=data;toast('Configuración guardada');
+}
+
+const renderers={dashboard:renderDashboard,products:renderProducts,clients:renderClients,inventory:renderInventory,requests:renderRequests,quotes:renderQuotes,accounts:renderAccounts,access:renderAccess,settings:renderSettings};
+async function renderCurrent(){await renderers[state.page]();}
+function switchPage(page){if(!canUsePage(page)){toast('No tienes permiso para este módulo.','error');return}state.page=page;document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===page));renderCurrent();}
+document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>switchPage(b.dataset.page));
+
+async function setupRealtime(){
+ if(state.channel)await sb.removeChannel(state.channel);
+ $('rtDot').className='dot';$('rtText').textContent='Conectando';$('sideRealtime').textContent='conectando…';
+ state.channel=sb.channel('epp-admin-live')
+   .on('postgres_changes',{event:'*',schema:'public',table:'products',filter:`organization_id=eq.${state.orgId}`},()=>softRefresh('products'))
+   .on('postgres_changes',{event:'*',schema:'public',table:'clients',filter:`organization_id=eq.${state.orgId}`},()=>softRefresh('clients'))
+   .on('postgres_changes',{event:'*',schema:'public',table:'inventory_movements',filter:`organization_id=eq.${state.orgId}`},()=>softRefresh('inventory'))
+   .on('postgres_changes',{event:'*',schema:'public',table:'quote_requests',filter:`organization_id=eq.${state.orgId}`},()=>softRefresh('requests'))
+   .on('postgres_changes',{event:'*',schema:'public',table:'quotes',filter:`organization_id=eq.${state.orgId}`},()=>softRefresh('quotes'))
+   .on('postgres_changes',{event:'*',schema:'public',table:'collection_accounts',filter:`organization_id=eq.${state.orgId}`},()=>softRefresh('accounts'))
+   .on('postgres_changes',{event:'*',schema:'public',table:'payments',filter:`organization_id=eq.${state.orgId}`},()=>softRefresh('accounts'))
+   .subscribe(status=>{if(status==='SUBSCRIBED'){$('rtDot').className='dot ok';$('rtText').textContent='Realtime';$('sideRealtime').textContent='conectado';}else if(['CHANNEL_ERROR','TIMED_OUT'].includes(status)){$('rtDot').className='dot bad';$('rtText').textContent='Sin realtime';$('sideRealtime').textContent='error';}});
+}
+function softRefresh(page){if(state.page===page||state.page==='dashboard')renderCurrent();}
+
+async function enterApp(){
+ await getSessionContext();$('loginScreen').classList.add('hidden');$('appScreen').classList.remove('hidden');await setupRealtime();await renderCurrent();
+}
+$('loginBtn').onclick=async()=>{
+ const btn=$('loginBtn');btn.disabled=true;$('loginError').classList.add('hidden');
+ try{const {error}=await sb.auth.signInWithPassword({email:$('loginEmail').value.trim(),password:$('loginPassword').value});if(error)throw error;await enterApp();}
+ catch(e){$('loginError').textContent=e.message||String(e);$('loginError').classList.remove('hidden');}
+ finally{btn.disabled=false}
+};
+$('logoutBtn').onclick=async()=>{if(state.channel)await sb.removeChannel(state.channel);await sb.auth.signOut();location.reload()};
+(async()=>{const {data:{session}}=await sb.auth.getSession();if(session){try{await enterApp()}catch(e){await sb.auth.signOut();toast(e.message||String(e),'error')}}})();
+if('serviceWorker' in navigator && location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
